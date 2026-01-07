@@ -46,7 +46,7 @@ func main() {
 
 	// 긴 문서용 옵션
 	flag.StringVar(&multifolio, "multifolio", "off", "시그니처 모드 (on/off, 기본: off)")
-	flag.IntVar(&folioSize, "foliosize", 8, "한 시그니처당 시트 수 (multifolio=on일 때 사용, 기본: 8)")
+	flag.IntVar(&folioSize, "foliosize", 6, "한 시그니처당 시트 수 (multifolio=on일 때 사용, 기본: 6)")
 
 	// 도움말
 	flag.Usage = func() {
