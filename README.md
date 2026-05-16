@@ -57,6 +57,10 @@ go run main.go -i <입력파일.pdf> -o <출력파일.pdf> [옵션]
 *   `-binding`: 제본 방향 (long/short, 기본값: long)
     *   `long`: 긴 쪽 제본 (일반적인 책)
     *   `short`: 짧은 쪽 제본 (달력 등)
+*   `-btype`: 소책자 제본 유형 (booklet/advanced/perfectbound, 기본값: booklet)
+    *   `booklet`: 일반적인 중첩 제본 (Saddle Stitch)
+    *   `advanced`: 고급 제본 설정 적용
+    *   `perfectbound`: 무선 제본 (떡제본)용 레이아웃
 *   `-multifolio`: 시그니처 모드 강제 설정 (on/off, 기본값: off)
     *   *참고: 종이 장수가 10장을 넘어가면 자동으로 on으로 설정됩니다.*
 *   `-foliosize`: 한 시그니처(묶음)당 시트 수 (multifolio=on일 때 사용, 기본값: 6)
