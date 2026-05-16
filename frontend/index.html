@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booklet Pro - Professional PDF Creator</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@600;700&display=swap');
+
+      :root {
+        --bg-color: #0f1115;
+        --panel-bg: #191b21;
+        --accent-primary: #5c62ec;
+        --accent-secondary: #a05cef;
+        --text-main: #e0e0e0;
+        --text-dim: #94a3b8;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+
+      #app {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        grid-template-rows: auto 1fr;
+        gap: 16px;
+        padding: 20px;
+      }
+
+      .app-header {
+        grid-column: span 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo-icon {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        border-radius: 6px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        color: white;
+      }
+
+      .main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+      }
+
+      .drop-zone {
+        flex: 1;
+        background: var(--glass-bg);
+        border: 2px dashed var(--border-color);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        text-align: center;
+      }
+
+      .drop-icon {
+        width: 48px !important;
+        height: 48px !important;
+        color: var(--text-dim);
+      }
+
+      .settings-panel {
+        background: var(--panel-bg);
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        border: 1px solid var(--border-color);
+        overflow-y: auto;
+      }
+
+      .setting-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .setting-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-dim);
+        text-transform: uppercase;
+      }
+
+      .layout-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .layout-opt {
+        background: var(--glass-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+
+      .layout-opt.selected {
+        border-color: var(--accent-primary);
+        background: rgba(92, 98, 236, 0.1);
+      }
+
+      .layout-preview {
+        width: 30px;
+        height: 22px;
+        border: 1px solid var(--text-dim);
+        border-radius: 2px;
+      }
+
+      select {
+        width: 100%;
+        background: #2a2d35; /* 더 어두운 배경으로 고정 */
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
+        outline: none;
+        cursor: pointer;
+        font-size: 14px;
+        appearance: none; /* 기본 브라우저 스타일 제거 */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+      }
+
+      select:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(92, 98, 236, 0.2);
+      }
+
+      /* 드롭다운 항목 스타일 (일부 브라우저 지원) */
+      select option {
+        background: #191b21;
+        color: white;
+      }
+
+      .btn-primary {
+        margin-top: auto;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .file-list {
+        background: rgba(0,0,0,0.2);
+        padding: 8px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+
+      .file-item {
+        padding: 6px;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header class="app-header">
+        <div class="logo-section">
+          <div class="logo-icon">B</div>
+          <div style="font-weight: 700;">Booklet <span style="font-weight: 400; color: var(--text-dim);">Pro</span></div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="drop-zone" id="dropZone">
+          <svg class="drop-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <div>
+            <h3 style="font-size: 16px;">PDF 파일을 선택하세요</h3>
+            <p style="font-size: 12px; color: var(--text-dim);">클릭하여 탐색기 열기</p>
+          </div>
+        </div>
+        <div class="file-list" id="fileList">
+          <div style="color: var(--text-dim); text-align: center; padding: 10px;">선택된 파일 없음</div>
+        </div>
+      </main>
+
+      <aside class="settings-panel">
+        <div class="setting-group">
+          <label class="setting-label">레이아웃</label>
+          <div class="layout-grid" id="layoutGrid">
+            <div class="layout-opt" data-value="2">
+              <div class="layout-preview"></div>
+              <span style="font-size: 12px;">2-Up</span>
+            </div>
+            <div class="layout-opt selected" data-value="4">
+              <div class="layout-preview"></div>
+              <span style="font-size: 12px;">4-Up</span>
+            </div>
+            <div class="layout-opt" data-value="6">
+              <div class="layout-preview"></div>
+              <span style="font-size: 12px;">6-Up</span>
+            </div>
+            <div class="layout-opt" data-value="8">
+              <div class="layout-preview"></div>
+              <span style="font-size: 12px;">8-Up</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">용지 크기</label>
+          <select id="formSize">
+            <option value="A4">A4</option>
+            <option value="A3">A3</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <div style="display:flex; justify-content:space-between; font-size: 13px;">
+            <span>가이드라인</span>
+            <input type="checkbox" id="guides" checked>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size: 13px;">
+            <span>긴 쪽 제본</span>
+            <input type="checkbox" id="binding" checked>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="createBtn" disabled>Booklet 생성</button>
+      </aside>
+
+      <!-- 커스텀 모달 창 -->
+      <div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
+        <div style="background:var(--panel-bg); border:1px solid var(--border-color); border-radius:20px; padding:32px; width:360px; text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+          <div style="width:56px; height:56px; background:rgba(92, 98, 236, 0.2); color:var(--accent-primary); border-radius:50%; display:flex; justify-content:center; align-items:center; margin:0 auto 20px;">
+            <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+          </div>
+          <h3 style="margin-bottom:8px;">생성 완료!</h3>
+          <p style="color:var(--text-dim); font-size:14px; margin-bottom:24px;">소책자가 성공적으로 생성되었습니다.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <button id="modalCloseBtn" style="background:var(--glass-bg); border:1px solid var(--border-color); color:white; padding:12px; border-radius:10px; cursor:pointer; font-weight:600;">닫기</button>
+            <button id="modalOpenBtn" style="background:var(--accent-primary); border:none; color:white; padding:12px; border-radius:10px; cursor:pointer; font-weight:600;">폴더 열기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

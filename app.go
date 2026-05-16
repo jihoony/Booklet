@@ -1,0 +1,94 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+
+	"Booklet/pkg/booklet"
+	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
+)
+
+// App struct
+type App struct {
+	ctx context.Context
+}
+
+// NewApp creates a new App struct
+func NewApp() *App {
+	return &App{}
+}
+
+// startup is called when the app starts. The context is saved
+// so we can call the runtime methods
+func (a *App) startup(ctx context.Context) {
+	a.ctx = ctx
+}
+
+// ShowSuccessDialog shows a dialog with "Open Folder" and "Close" options
+func (a *App) ShowSuccessDialog(message string) string {
+	resp, err := wailsRuntime.MessageDialog(a.ctx, wailsRuntime.MessageDialogOptions{
+		Type:          wailsRuntime.QuestionDialog,
+		Title:         "생성 완료",
+		Message:       message,
+		Buttons:       []string{"폴더 열기", "닫기"},
+		DefaultButton: "폴더 열기",
+	})
+	if err != nil {
+		return "닫기"
+	}
+	return resp
+}
+
+// SelectFile opens a system file dialog to select a PDF file
+func (a *App) SelectFile() (string, error) {
+	selection, err := wailsRuntime.OpenFileDialog(a.ctx, wailsRuntime.OpenDialogOptions{
+		Title: "PDF 파일 선택",
+		Filters: []wailsRuntime.FileFilter{
+			{DisplayName: "PDF Files (*.pdf)", Pattern: "*.pdf"},
+		},
+	})
+	return selection, err
+}
+
+// SelectSaveFile opens a dialog to select the output file path
+func (a *App) SelectSaveFile() (string, error) {
+	selection, err := wailsRuntime.SaveFileDialog(a.ctx, wailsRuntime.SaveDialogOptions{
+		Title:           "결과 파일 저장",
+		DefaultFilename: "booklet_output.pdf",
+		Filters: []wailsRuntime.FileFilter{
+			{DisplayName: "PDF Files (*.pdf)", Pattern: "*.pdf"},
+		},
+	})
+	return selection, err
+}
+
+// ProcessBooklet processes the input PDF and creates a booklet
+func (a *App) ProcessBooklet(opts booklet.Options) string {
+	err := booklet.Process(opts)
+	if err != nil {
+		return fmt.Sprintf("Error: %v", err)
+	}
+	return "Success"
+}
+
+// OpenFolder opens the specified path in the default file browser
+func (a *App) OpenFolder(path string) {
+	dir := filepath.Dir(path)
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("explorer", dir)
+	case "darwin":
+		cmd = exec.Command("open", dir)
+	case "linux":
+		cmd = exec.Command("xdg-open", dir)
+	default:
+		return
+	}
+
+	_ = cmd.Run()
+}

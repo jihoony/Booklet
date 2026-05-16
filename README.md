@@ -1,92 +1,61 @@
-# Booklet Creator
+# Booklet Pro (소책자 제조기)
 
-PDF 문서를 소책자(Booklet) 형태로 인쇄할 수 있도록 페이지를 재배치하고 변환해주는 CLI 도구입니다. [pdfcpu](https://github.com/pdfcpu/pdfcpu) 라이브러리를 기반으로 하며, 실제 제본 시 유용한 가이드라인 표시 기능과 대량 페이지 자동 분할(Multifolio) 기능을 제공합니다.
+PDF 파일을 소책자 인쇄용 레이아웃(2-up, 4-up 등)으로 자동 변환해주는 멀티플랫폼 데스크탑 애플리케이션 및 CLI 도구입니다.
 
-## 주요 기능
+![Booklet GUI Screenshot](https://raw.githubusercontent.com/jihoony/Booklet/main/screenshot.png) <!-- 실제 스크린샷 파일이 있다면 교체 가능 -->
 
-*   **소책자 변환**: PDF 페이지를 인쇄 후 접어서 책을 만들 수 있도록 순서를 재배치합니다.
-*   **다양한 레이아웃**: 한 면당 2, 4, 6, 8 페이지 배치를 지원합니다.
-*   **스마트 가이드라인**: 종이를 자르는 선(실선)과 접는 선(점선)을 구분하여 표시해줍니다. (텍스트 없이 깔끔한 선만 표시)
-*   **자동 시그니처 모드**: 페이지 수가 많아 한 번에 접기 힘든 경우, 자동으로 여러 묶음(Signature)으로 나누어 처리합니다. (기본 10장 초과 시 자동 활성화)
-*   **다양한 용지 지원**: A4, A5, Letter 등 다양한 용지 크기를 지원합니다.
+## 🚀 주요 기능
+- **GUI 기반 데스크탑 앱**: 드래그 앤 드롭으로 간편하게 PDF 변환 (Wails v2 기반)
+- **강력한 CLI 지원**: 터미널 환경에서도 자동화 및 일괄 처리 가능
+- **다양한 레이아웃**: 2-Up, 4-Up, 6-Up, 8-Up 지원
+- **스마트 가이드라인**: 접지 및 절단을 돕는 시각적 안내선 삽입 기능
+- **멀티폴리오(Multifolio) 지원**: 대량 페이지를 여러 권의 소책자로 분할 처리 가능
 
-## 설치 및 빌드
+## 💻 사용 방법
 
-Go 언어(1.25 이상 권장)가 설치되어 있어야 합니다.
-
+### 1. 데스크탑 앱 (GUI) 모드
+인자 없이 실행하면 현대적인 디자인의 GUI 모드로 실행됩니다.
 ```bash
-# 저장소 클론
-git clone https://github.com/your-repo/booklet.git
-cd booklet
-
-# 의존성 다운로드
-go mod tidy
-
-# 실행
-go run main.go [옵션]
+./Booklet
 ```
 
-또는 바이너리로 빌드하여 사용할 수 있습니다.
-
+### 2. CLI 모드
+터미널에서 직접 옵션을 지정하여 실행할 수 있습니다.
 ```bash
-go build -o booklet main.go
-./booklet [옵션]
+./Booklet -i input.pdf -o output.pdf -n 4 -guides on
 ```
 
-## 사용법
+#### CLI 필수 인자:
+- `-i`: 입력 PDF 파일 경로
+- `-o`: 출력될 소책자 PDF 파일 경로
 
-기본적인 사용법은 다음과 같습니다.
+#### CLI 선택 인자:
+- `-n`: 한 면에 배치할 페이지 수 (2, 4, 6, 8 / 기본값: 4)
+- `-form`: 출력 용지 크기 (A4, A3 / 기본값: A4)
+- `-guides`: 가이드라인 표시 여부 (on, off / 기본값: off)
+- `-margin`: 페이지 간 여백 (0~50 / 기본값: 10)
+- `-binding`: 제본 방향 (long, short / 기본값: long)
+- `-multifolio`: 멀티폴리오 모드 사용 여부 (on, off / 기본값: off)
 
+## 🛠 빌드 및 설치 가이드 (개발자용)
+
+### 시스템 요구사항
+- **Go**: 1.25 이상
+- **Node.js**: 18.x 이상
+- **Wails CLI**: `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+
+### 빌드 명령어 (Desktop App)
 ```bash
-go run main.go -i <입력파일.pdf> -o <출력파일.pdf> [옵션]
+# 리눅스 환경 (Ubuntu 24.04+)
+sudo apt install libgtk-3-dev libwebkit2gtk-4.1-dev
+wails build -tags webkit2_41
 ```
 
-### 필수 옵션
+## 📂 프로젝트 구조
+- `pkg/booklet`: 소책자 변환 핵심 비즈니스 로직
+- `frontend`: Vite + TypeScript 기반의 현대적 UI
+- `app.go`: Go 백엔드와 프런트엔드 연결 브릿지
+- `main.go`: 실행 환경(CLI/GUI) 감지 및 엔트리 포인트
 
-*   `-i`, `-in`: 입력 PDF 파일 경로
-*   `-o`, `-out`: 출력 PDF 파일 경로
-
-### 선택 옵션
-
-*   `-n`: 한 면에 배치할 페이지 수 (2, 4, 6, 8 지원, 기본값: 4)
-    *   `2`: 2-up (한 장에 4페이지)
-    *   `4`: 4-up (한 장에 8페이지) - *가장 일반적인 소책자 형태*
-*   `-formsize`: 용지 크기 (A4, A5, Letter 등, 기본값: A4)
-*   `-guides`: 접기/자르기 가이드라인 표시 (on/off, 기본값: on)
-*   `-margin`: 여백 크기 (포인트 단위, 기본값: 10)
-*   `-binding`: 제본 방향 (long/short, 기본값: long)
-    *   `long`: 긴 쪽 제본 (일반적인 책)
-    *   `short`: 짧은 쪽 제본 (달력 등)
-*   `-btype`: 소책자 제본 유형 (booklet/advanced/perfectbound, 기본값: booklet)
-    *   `booklet`: 일반적인 중첩 제본 (Saddle Stitch)
-    *   `advanced`: 고급 제본 설정 적용
-    *   `perfectbound`: 무선 제본 (떡제본)용 레이아웃
-*   `-multifolio`: 시그니처 모드 강제 설정 (on/off, 기본값: off)
-    *   *참고: 종이 장수가 10장을 넘어가면 자동으로 on으로 설정됩니다.*
-*   `-foliosize`: 한 시그니처(묶음)당 시트 수 (multifolio=on일 때 사용, 기본값: 6)
-
-## 사용 예시
-
-**1. 기본 A4 소책자 만들기 (4-up)**
-가장 일반적인 형태로, A4 용지 한 면에 4페이지(양면 8페이지)가 인쇄되어 반으로 접고 다시 반으로 접거나 잘라서 책을 만드는 형태입니다.
-```bash
-go run main.go -i input.pdf -o booklet.pdf
-```
-
-**2. A3 용지에 2페이지씩 배치 (2-up)**
-A3 용지를 반으로 접어 A4 크기의 책을 만들 때 유용합니다.
-```bash
-go run main.go -i input.pdf -o booklet.pdf -n 2 -formsize A3
-```
-
-**3. 가이드라인 없이 생성**
-```bash
-go run main.go -i input.pdf -o booklet.pdf -guides off
-```
-
-**4. 페이지가 많은 문서 (자동 Multifolio)**
-입력 파일이 매우 큰 경우(예: 200페이지), 프로그램이 자동으로 시그니처 모드를 활성화하여 6장(24~48페이지)씩 묶어서 출력합니다. 사용자는 출력된 묶음들을 각각 접어서 합치면 됩니다.
-
-## 라이선스
-
-이 프로젝트는 [pdfcpu](https://github.com/pdfcpu/pdfcpu)를 사용하며, 해당 라이브러리의 라이선스를 따릅니다.
+## 📄 라이선스
+MIT License
