@@ -192,6 +192,115 @@
         color: white;
       }
 
+      input[type="number"] {
+        width: 100%;
+        background: #2a2d35;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+        padding: 10px;
+        border-radius: 8px;
+        outline: none;
+        font-size: 14px;
+      }
+
+      input[type="number"]:focus {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(92, 98, 236, 0.2);
+      }
+
+      details.advanced-settings {
+        border-top: 1px solid var(--border-color);
+        padding-top: 16px;
+        margin-top: 8px;
+      }
+
+      details.advanced-settings summary::-webkit-details-marker {
+        display: none;
+      }
+
+      details.advanced-settings summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        list-style: none;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      details.advanced-settings[open] .chevron-icon {
+        transform: rotate(180deg);
+      }
+
+      .chevron-icon {
+        transition: transform 0.2s ease;
+        color: var(--text-dim);
+      }
+
+      /* Checkbox styling */
+      input[type="checkbox"] {
+        cursor: pointer;
+        accent-color: var(--accent-primary);
+        width: 16px;
+        height: 16px;
+      }
+
+      /* Tooltip Styling */
+      .info-tooltip-trigger {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        color: var(--text-dim);
+        cursor: help;
+        transition: color 0.2s;
+      }
+
+      .info-tooltip-trigger:hover {
+        color: var(--accent-primary);
+      }
+
+      .info-tooltip-content {
+        visibility: hidden;
+        opacity: 0;
+        width: 260px;
+        background: rgba(25, 27, 33, 0.96);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        text-align: left;
+        border-radius: 8px;
+        padding: 12px;
+        position: absolute;
+        z-index: 10010;
+        bottom: 130%; /* Position above the icon */
+        right: -10px; /* Align to the right edge of the icon */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(12px);
+        font-size: 11px;
+        line-height: 1.5;
+        font-family: 'Inter', sans-serif;
+        text-transform: none; /* Prevent uppercase from setting-label */
+        font-weight: normal;
+        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        transform: translateY(10px);
+      }
+
+      /* Tooltip Arrow */
+      .info-tooltip-content::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        right: 12px; /* Arrow on the right side */
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(25, 27, 33, 0.96) transparent transparent transparent;
+      }
+
+      .info-tooltip-trigger:hover .info-tooltip-content {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
       .btn-primary {
         margin-top: auto;
         background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
@@ -274,7 +383,15 @@
           <select id="formSize">
             <option value="A4">A4</option>
             <option value="A3">A3</option>
+            <option value="A5">A5</option>
+            <option value="Letter">Letter</option>
+            <option value="Legal">Legal</option>
           </select>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">여백 (Margin, pt)</label>
+          <input type="number" id="margin" value="10" min="0" max="100" step="0.5">
         </div>
 
         <div class="setting-group">
@@ -287,6 +404,50 @@
             <input type="checkbox" id="binding" checked>
           </div>
         </div>
+
+        <details class="advanced-settings">
+          <summary class="setting-label">
+            <span>고급 설정 (Advanced)</span>
+            <svg class="chevron-icon" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </summary>
+          <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 14px;">
+            <div class="setting-group">
+              <label class="setting-label" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+                <span>소책자 유형 (BType)</span>
+                <span class="info-tooltip-trigger">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span class="info-tooltip-content">
+                    <strong>소책자 유형 제본 방식:</strong><br><br>
+                    • <strong>Booklet (기본):</strong> 반으로 접어 스테이플러로 고정하는 일반적인 중정 제본 방식입니다.<br><br>
+                    • <strong>Advanced (상세):</strong> 접지 후 가장자리를 잘라내는 상업용 인쇄소 특화 방식입니다.<br><br>
+                    • <strong>Perfect Bound:</strong> 낱장을 쌓아 책등에 풀칠하는 두꺼운 책용 무선 제본 방식입니다.
+                  </span>
+                </span>
+              </label>
+              <select id="btype">
+                <option value="booklet">Booklet (기본)</option>
+                <option value="bookletadvanced">Advanced (상세)</option>
+                <option value="perfectbound">Perfect Bound (무선제본)</option>
+              </select>
+            </div>
+            
+            <div class="setting-group">
+              <div style="display:flex; justify-content:space-between; font-size: 13px; align-items: center;">
+                <span>시그니처 모드 (Multifolio)</span>
+                <input type="checkbox" id="multifolio">
+              </div>
+            </div>
+
+            <div class="setting-group" id="folioSizeGroup" style="display: none;">
+              <label class="setting-label">시그니처당 시트 수 (Folio Size)</label>
+              <input type="number" id="folioSize" value="6" min="1" max="100">
+            </div>
+          </div>
+        </details>
 
         <button class="btn-primary" id="createBtn" disabled>Booklet 생성</button>
       </aside>

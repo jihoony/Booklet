@@ -25,27 +25,19 @@ type Options struct {
 	FolioSize  int
 }
 
-// Process 실제 소책자 변환 프로세스를 실행합니다.
-func Process(opts Options) error {
-	// multifolio 자동 설정 로직
+// buildConfigString 소책자 설정을 문자열로 빌드합니다. (유닛 테스트에 활용)
+func buildConfigString(opts Options, pageCount int) string {
 	multifolioStr := "off"
 	if opts.Multifolio {
 		multifolioStr = "on"
 	} else {
-		// 파일 존재 여부 확인 겸 페이지 수 체크
-		ctx, err := api.ReadContextFile(opts.Input)
-		if err != nil {
-			return fmt.Errorf("입력 파일 분석 실패: %v", err)
-		}
-		pageCount := ctx.PageCount
-
-		// 양면 인쇄 기준 한 장당 페이지 수 (n-up * 2)
 		pagesPerSheet := opts.N * 2
-		totalSheets := (pageCount + pagesPerSheet - 1) / pagesPerSheet
-
-		// 종이 10장 이상이면 multifolio 자동 활성화
-		if totalSheets > 10 {
-			multifolioStr = "on"
+		if pagesPerSheet > 0 {
+			totalSheets := (pageCount + pagesPerSheet - 1) / pagesPerSheet
+			// 종이 10장 이상이면 multifolio 자동 활성화
+			if totalSheets > 10 {
+				multifolioStr = "on"
+			}
 		}
 	}
 
@@ -62,7 +54,19 @@ func Process(opts Options) error {
 		descParts = append(descParts, "multifolio:on", fmt.Sprintf("foliosize:%d", opts.FolioSize))
 	}
 
-	desc := strings.Join(descParts, ", ")
+	return strings.Join(descParts, ", ")
+}
+
+// Process 실제 소책자 변환 프로세스를 실행합니다.
+func Process(opts Options) error {
+	// 파일 존재 여부 확인 겸 페이지 수 체크
+	ctx, err := api.ReadContextFile(opts.Input)
+	if err != nil {
+		return fmt.Errorf("입력 파일 분석 실패: %v", err)
+	}
+	pageCount := ctx.PageCount
+
+	desc := buildConfigString(opts, pageCount)
 
 	// booklet 생성
 	conf := model.NewDefaultConfiguration()

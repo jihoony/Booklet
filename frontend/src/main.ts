@@ -29,6 +29,10 @@ async function init() {
         layoutGrid: document.getElementById('layoutGrid'),
         createBtn: document.getElementById('createBtn') as HTMLButtonElement,
         formSize: document.getElementById('formSize') as HTMLSelectElement,
+        margin: document.getElementById('margin') as HTMLInputElement,
+        btype: document.getElementById('btype') as HTMLSelectElement,
+        multifolio: document.getElementById('multifolio') as HTMLInputElement,
+        folioSize: document.getElementById('folioSize') as HTMLInputElement,
         guides: document.getElementById('guides') as HTMLInputElement,
         binding: document.getElementById('binding') as HTMLInputElement,
     };
@@ -41,7 +45,7 @@ async function init() {
         }
     }
 
-    const { dropZone, fileList, layoutGrid, createBtn, formSize, guides, binding } = elements as any;
+    const { dropZone, fileList, layoutGrid, createBtn, formSize, margin, btype, multifolio, folioSize, guides, binding } = elements as any;
 
     // Handle Wails native drag and drop
     const setupDragAndDrop = () => {
@@ -109,6 +113,14 @@ async function init() {
         });
     });
 
+    // Toggle folio size group based on multifolio checkbox
+    const folioSizeGroup = document.getElementById('folioSizeGroup') as HTMLDivElement;
+    multifolio.addEventListener('change', () => {
+        if (folioSizeGroup) {
+            folioSizeGroup.style.display = multifolio.checked ? 'block' : 'none';
+        }
+    });
+
     // Create Button
     createBtn.addEventListener('click', async () => {
         if (!inputPath) return;
@@ -123,10 +135,11 @@ async function init() {
                 N:          nValue,
                 FormSize:   formSize.value,
                 Guides:     guides.checked,
+                Margin:     parseFloat(margin.value || '10'),
                 Binding:    binding.checked ? 'long' : 'short',
-                BType:      "booklet",
-                Multifolio: false,
-                FolioSize:  6,
+                BType:      btype.value,
+                Multifolio: multifolio.checked,
+                FolioSize:  parseInt(folioSize.value || '6'),
             };
             
             createBtn.disabled = true;
