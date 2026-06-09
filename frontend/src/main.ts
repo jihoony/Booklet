@@ -10,6 +10,15 @@ declare global {
 let inputPath = "";
 let nValue = 4;
 
+// Prevent default browser behavior for drag & drop navigation (prevents opening files in webview)
+window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+}, false);
+
+window.addEventListener('drop', (e) => {
+    e.preventDefault();
+}, false);
+
 // Initialization
 async function init() {
     console.log("Booklet Pro: Initializing...");
@@ -33,6 +42,43 @@ async function init() {
     }
 
     const { dropZone, fileList, layoutGrid, createBtn, formSize, guides, binding } = elements as any;
+
+    // Handle Wails native drag and drop
+    const setupDragAndDrop = () => {
+        if (window.runtime && window.runtime.OnFileDrop) {
+            window.runtime.OnFileDrop((_x: number, _y: number, paths: string[]) => {
+                if (paths && paths.length > 0) {
+                    const droppedPath = paths[0];
+                    if (droppedPath.toLowerCase().endsWith('.pdf')) {
+                        inputPath = droppedPath;
+                        updateFileList(fileList);
+                        createBtn.disabled = !inputPath;
+                    } else {
+                        alert("PDF 파일만 지원됩니다.");
+                    }
+                }
+            }, true);
+            console.log("Booklet Pro: Wails native OnFileDrop registered.");
+        } else if (window.runtime) {
+            window.runtime.EventsOn("wails:file-drop", (_x: number, _y: number, paths: string[]) => {
+                if (paths && paths.length > 0) {
+                    const droppedPath = paths[0];
+                    if (droppedPath.toLowerCase().endsWith('.pdf')) {
+                        inputPath = droppedPath;
+                        updateFileList(fileList);
+                        createBtn.disabled = !inputPath;
+                    } else {
+                        alert("PDF 파일만 지원됩니다.");
+                    }
+                }
+            });
+            console.log("Booklet Pro: Wails wails:file-drop event registered.");
+        } else {
+            console.log("Booklet Pro: Wails runtime not ready yet, retrying drag & drop registration in 100ms...");
+            setTimeout(setupDragAndDrop, 100);
+        }
+    };
+    setupDragAndDrop();
 
     // Drop Zone Events
     dropZone.addEventListener('click', async () => {
@@ -68,7 +114,7 @@ async function init() {
         if (!inputPath) return;
         
         try {
-            const outputPath = await window.go.main.App.SelectSaveFile();
+            const outputPath = await window.go.main.App.SelectSaveFile(inputPath);
             if (!outputPath) return;
 
             const opts = {

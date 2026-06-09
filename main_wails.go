@@ -23,6 +23,10 @@ func runGUI() {
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
+		DragAndDrop: &options.DragAndDrop{
+			EnableFileDrop:     true,
+			DisableWebViewDrop: false,
+		},
 		BackgroundColour: &options.RGBA{R: 15, G: 17, B: 21, A: 1},
 		OnStartup:        app.startup,
 		Bind: []interface{}{

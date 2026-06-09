@@ -8,6 +8,6 @@ export function ProcessBooklet(arg1:booklet.Options):Promise<string>;
 
 export function SelectFile():Promise<string>;
 
-export function SelectSaveFile():Promise<string>;
+export function SelectSaveFile(arg1:string):Promise<string>;
 
 export function ShowSuccessDialog(arg1:string):Promise<string>;

@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"Booklet/pkg/booklet"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
@@ -54,10 +55,21 @@ func (a *App) SelectFile() (string, error) {
 }
 
 // SelectSaveFile opens a dialog to select the output file path
-func (a *App) SelectSaveFile() (string, error) {
+func (a *App) SelectSaveFile(inputPath string) (string, error) {
+	var defaultDir, defaultFilename string
+	if inputPath != "" {
+		defaultDir = filepath.Dir(inputPath)
+		ext := filepath.Ext(inputPath)
+		base := strings.TrimSuffix(filepath.Base(inputPath), ext)
+		defaultFilename = base + "_booklet.pdf"
+	} else {
+		defaultFilename = "booklet_output.pdf"
+	}
+
 	selection, err := wailsRuntime.SaveFileDialog(a.ctx, wailsRuntime.SaveDialogOptions{
-		Title:           "결과 파일 저장",
-		DefaultFilename: "booklet_output.pdf",
+		Title:            "결과 파일 저장",
+		DefaultDirectory: defaultDir,
+		DefaultFilename:  defaultFilename,
 		Filters: []wailsRuntime.FileFilter{
 			{DisplayName: "PDF Files (*.pdf)", Pattern: "*.pdf"},
 		},
