@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"Booklet/pkg/booklet"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -103,4 +104,13 @@ func (a *App) OpenFolder(path string) {
 	}
 
 	_ = cmd.Run()
+}
+
+// GetPageCount returns the page count of the PDF file at the specified path
+func (a *App) GetPageCount(path string) (int, error) {
+	ctx, err := api.ReadContextFile(path)
+	if err != nil {
+		return 0, fmt.Errorf("PDF 파일 분석 실패: %v", err)
+	}
+	return ctx.PageCount, nil
 }
